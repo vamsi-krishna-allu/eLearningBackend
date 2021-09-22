@@ -15,6 +15,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsUtils;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
@@ -47,12 +50,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+
+
+
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         // We don't need CSRF for this example
-        httpSecurity.csrf().disable()
+        httpSecurity.cors().and().csrf().disable()
                 // dont authenticate this particular request
-                .authorizeRequests().antMatchers("/authenticate", "/register" , "/sendMessage").permitAll().
+                .authorizeRequests().requestMatchers(CorsUtils::isPreFlightRequest).permitAll().antMatchers("/questions**","/pay","/getPdfFile**","/authenticate", "/register" , "/sendMessage").permitAll().
                 // all other requests need to be authenticated
                         anyRequest().authenticated().and().
                 // make sure we use stateless session; session won't be used to

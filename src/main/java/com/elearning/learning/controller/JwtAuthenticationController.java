@@ -16,7 +16,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin
 @AllArgsConstructor
 public class JwtAuthenticationController {
 
@@ -54,5 +53,14 @@ public class JwtAuthenticationController {
     @PostMapping(value = "/register")
     public ResponseEntity<?> saveUser(@RequestBody Student student) throws Exception {
          return ResponseEntity.ok(jwtRegisterDetailsService.save(student));
+    }
+
+    @PostMapping(value = "/changePassword")
+    public ResponseEntity<?> updatePassword(@RequestBody Student student) throws Exception {
+        try {
+            return ResponseEntity.ok(jwtRegisterDetailsService.updatePassword(student));
+        } catch (Exception e) {
+            throw new Exception("UNABLE TO CHANGE PASSWORD", e);
+        }
     }
 }

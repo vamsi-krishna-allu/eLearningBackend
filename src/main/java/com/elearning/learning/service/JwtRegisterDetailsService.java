@@ -21,4 +21,12 @@ public class JwtRegisterDetailsService {
         newUser.setPassword(bcryptEncoder.encode(student.getPassword()));
         return userRepository.save(newUser);
     }
+
+    public String updatePassword(Student student) {
+        StudentDetails studentDetails = userRepository.findByUsernameAndPassword(student.getUsername(), bcryptEncoder.encode(student.getPassword()));
+        if(studentDetails == null){
+            return "Incorrect your username or password";
+        }
+        return userRepository.updatePassword(studentDetails.getId(), bcryptEncoder.encode(student.getPassword()));
+    }
 }
