@@ -14,13 +14,14 @@ import org.springframework.web.bind.annotation.*;
 public class PaypalController {
 
     private final PaypalService service;
+    private static Order order;
 
-    @GetMapping(value = "/pay")
-    public String payment(/*@RequestBody Order order*/) {
+    @PostMapping(value = "/pay")
+    public String payment(@RequestBody Order order) {
         try {
-            Order order = new Order(1,"INR","paypal","sale","verify paypal payment");
-            Payment payment = service.createPayment(order.getPrice(), order.getCurrency(), order.getMethod(),
-                    order.getIntent(), order.getDescription(), "http://localhost:8080/" + "pay/cancel",
+            this.order = order;
+            Payment payment = service.createPayment(order.getPrice(), "INR", "paypal",
+                    "sale", order.getPlanType() + " plan for " + order.getCourseId() + " to " + order.getUserName(), "http://localhost:8080/" + "pay/cancel",
                     "http://localhost:8080/" + "pay/success");
             for(Links link:payment.getLinks()) {
                 if(link.getRel().equals("approval_url")) {
@@ -37,6 +38,7 @@ public class PaypalController {
 
     @GetMapping(value = "pay/cancel")
     public String cancelPay() {
+        this.order = new Order();
         return "cancel";
     }
 
@@ -46,6 +48,7 @@ public class PaypalController {
             Payment payment = service.executePayment(paymentId, payerId);
             System.out.println(payment.toJSON());
             if (payment.getState().equals("approved")) {
+                service.updateCourseForUser(this.order);
                 return "success";
             }
         } catch (PayPalRESTException e) {

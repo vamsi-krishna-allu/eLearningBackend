@@ -61,4 +61,25 @@ public class PaypalService {
         return payment.execute(apiContext, paymentExecute);
     }
 
+    public void updateCourseForUser(com.elearning.learning.model.Order order) {
+        if(order.getType() == "COURSE") {
+            if(order.getPlanType() == "BASIC") {
+                // update table with available course and 1 mock test
+            } else if(order.getPlanType() == "STANDARD") {
+                // update table with available course and 2 mock test
+            } else if(order.getPlanType() == "PLATINUM") {
+                // update table with available course and 4 mock test
+            }
+        } else if(order.getType() == "TEST") {
+            if(order.getPlanType() == "BASIC") {
+                // update table with 1 mock test
+            } else if(order.getPlanType() == "STANDARD") {
+                // update table with 2 mock test
+            } else if(order.getPlanType() == "PLATINUM") {
+                // update table with 4 mock test
+            }
+        }
+
+
+    }
 }

@@ -14,7 +14,11 @@ public class CourseService {
     private final UserCourseRepository userCourseRepository;
 
     public List<String> getAuthenticatedCourses(String username) {
-        UserCourseDetails userCourseDetails = userCourseRepository.findByUsername(username);
-        return userCourseDetails.getAllowedCourses();
+        List<UserCourseDetails> userCourseDetails = userCourseRepository.findByUsername(username);
+        List<String> allowedCourses = null;
+        for(UserCourseDetails course: userCourseDetails) {
+            allowedCourses.add(course.getAllowedCourse());
+        }
+        return allowedCourses;
     }
 }

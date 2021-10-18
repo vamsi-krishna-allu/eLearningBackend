@@ -17,12 +17,10 @@ public class UserCourseDetails {
     private long id;
     @Column
     private String username;
-    @ElementCollection
     @Column
-    private List<String> allowedCourses;
-    @ElementCollection
+    private String allowedCourse;
     @Column
-    private List<String> allowedMockTests;
+    private String allowedMockTest;
 
 
 }

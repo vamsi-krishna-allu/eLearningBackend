@@ -1,18 +1,25 @@
 package com.elearning.learning.controller;
 
+import com.elearning.learning.model.FileResponse;
 import com.elearning.learning.service.CourseService;
+import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
+import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
+import javax.persistence.Convert;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 
 @RestController
@@ -21,21 +28,39 @@ public class CourseController {
 
     private final CourseService courseService;
 
-    @GetMapping(value = "/getPdfFile")
-    public ResponseEntity<InputStreamResource> getFile() throws FileNotFoundException {
+//    @GetMapping(value = "/getPdfFile")
+//    public ResponseEntity<InputStreamResource> getFile() throws FileNotFoundException {
+//
+//        String filePath = "src/main/resources/Form16.pdf";
+//        File file = new File(filePath);
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.add("content-disposition", "inline;filename=" +"Form16.pdf");
+//
+//        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+//
+//        return ResponseEntity.ok()
+//                .headers(headers)
+//                .contentLength(file.length())
+//                .contentType(MediaType.parseMediaType("application/pdf"))
+//                .body(resource);
+//    }
 
-        String filePath = "src/main/resources/Form16.pdf";
-        File file = new File(filePath);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("content-disposition", "inline;filename=" +"Form16.pdf");
+    @GetMapping(value = "/getPdfFile/{fileName}")
+    public ResponseEntity<FileResponse> getPdf(@PathVariable("fileName") String fileName) {
+        File file = new File("src\\main\\resources\\"+fileName);
 
-        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+        try {
+            FileInputStream fileInputStream = new FileInputStream(file);
+            // return IOUtils.toByteArray(fileInputStream);
+            String pdfBase64 = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fileInputStream));
+            FileResponse response = new FileResponse(fileName, pdfBase64);
 
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentLength(file.length())
-                .contentType(MediaType.parseMediaType("application/pdf"))
-                .body(resource);
+            return new ResponseEntity<FileResponse>(response,
+                    HttpStatus.OK);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @GetMapping(value = "/authenticatedCourses")
