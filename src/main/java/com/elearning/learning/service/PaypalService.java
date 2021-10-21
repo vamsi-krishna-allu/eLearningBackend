@@ -1,8 +1,11 @@
 package com.elearning.learning.service;
 
+import com.elearning.learning.entities.UserCourseDetails;
+import com.elearning.learning.repository.UserCourseRepository;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
 import com.paypal.base.rest.PayPalRESTException;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,11 +15,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class PaypalService {
 
     @Autowired
     private APIContext apiContext;
 
+    private final UserCourseRepository userCourseRepository;
 
     public Payment createPayment(
             Double total,
@@ -61,25 +66,51 @@ public class PaypalService {
         return payment.execute(apiContext, paymentExecute);
     }
 
-    public void updateCourseForUser(com.elearning.learning.model.Order order) {
+    public String updateCourseForUser(com.elearning.learning.model.Order order) {
+        UserCourseDetails userCourseDetails = userCourseRepository.findByUsername(order.getUserName());
+        String availableCourses = userCourseDetails.getAllowedCourses();
+        String availableTests = userCourseDetails.getAllowedMockTests();
         if(order.getType() == "COURSE") {
             if(order.getPlanType() == "BASIC") {
-                // update table with available course and 1 mock test
+                availableCourses = availableCourses.concat(",").concat(order.getCourseId());
+                availableTests = availableTests.concat(",").concat(order.getCourseId()+"-test-1");
             } else if(order.getPlanType() == "STANDARD") {
-                // update table with available course and 2 mock test
+                availableCourses = availableCourses.concat(",").concat(order.getCourseId());
+                availableTests = availableTests.concat(",").concat(order.getCourseId()+"-test-1")
+                        .concat(",").concat(order.getCourseId()+"-test-2");
             } else if(order.getPlanType() == "PLATINUM") {
-                // update table with available course and 4 mock test
+                availableCourses = availableCourses.concat(",").concat(order.getCourseId());
+                availableTests = availableTests.concat(",").concat(order.getCourseId()+"-test-1")
+                        .concat(",").concat(order.getCourseId()+"-test-2").concat(",")
+                        .concat(order.getCourseId()+"-test-3").concat(",")
+                        .concat(order.getCourseId()+"-test-4");
+            }
+            try {
+                userCourseRepository.updateAllowedCourseAndTests(order.getUserName(), availableCourses, availableTests);
+                return "UPDATE SUCCESSFUL";
+            }catch(Exception e) {
+                return "UPDATE FAILED";
             }
         } else if(order.getType() == "TEST") {
             if(order.getPlanType() == "BASIC") {
-                // update table with 1 mock test
+                availableTests = availableTests.concat(",").concat(order.getCourseId()+"-test-1");
             } else if(order.getPlanType() == "STANDARD") {
-                // update table with 2 mock test
+                availableTests = availableTests.concat(",").concat(order.getCourseId()+"-test-1")
+                        .concat(",").concat(order.getCourseId()+"-test-2");
             } else if(order.getPlanType() == "PLATINUM") {
-                // update table with 4 mock test
+                availableTests = availableTests.concat(",").concat(order.getCourseId()+"-test-1")
+                        .concat(",").concat(order.getCourseId()+"-test-2").concat(",")
+                        .concat(order.getCourseId()+"-test-3").concat(",")
+                        .concat(order.getCourseId()+"-test-4");
             }
+            try {
+                userCourseRepository.updateAllowedTest(order.getUserName(), availableTests);
+                return "UPDATE SUCCESSFUL";
+            }catch(Exception e) {
+                return "UPDATE FAILED";
+            }
+
         }
-
-
+        return "UPDATE SUCCESSFUL";
     }
 }

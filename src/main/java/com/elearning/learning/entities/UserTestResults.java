@@ -4,13 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
-@Table(name = "user_courses")
+@Table(name = "user_test_results")
 @Getter
 @Setter
-public class UserCourseDetails {
+public class UserTestResults {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,8 +17,10 @@ public class UserCourseDetails {
     @Column
     private String username;
     @Column
-    private String allowedCourses;
+    private String testType;
     @Column
-    private String allowedMockTests;
-
+    private Integer attemptedQuestions;
+    @Column
+    private Integer correctAnswers;
+    
 }

@@ -1,33 +1,54 @@
 package com.elearning.learning.service;
 
+import com.elearning.learning.constants.MockTests;
 import com.elearning.learning.entities.MockTestQuestions;
 import com.elearning.learning.entities.UserCourseDetails;
+import com.elearning.learning.entities.UserTestResults;
 import com.elearning.learning.model.TestResultRequest;
 import com.elearning.learning.model.TestResultResponse;
-import com.elearning.learning.repository.MockTestRepository;
+import com.elearning.learning.repository.TestResultsRepository;
 import com.elearning.learning.repository.UserCourseRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
 @AllArgsConstructor
 public class MockTestsService {
 
-    private final MockTestRepository mockTestRepository;
+    private final TestResultsRepository testResultsRepository;
     private final UserCourseRepository userCourseRepository;
 
     public List<MockTestQuestions> getQuestions(String testType) {
-        return mockTestRepository.findByTestType(testType);
+        File file = new File(
+                this.getClass().getClassLoader().getResource("src\\main\\resources\\mockTests"+testType+".json").getFile()
+        );
+        ObjectMapper mapper = new ObjectMapper();
+        List<MockTestQuestions> mockTestQuestions = null;
+        try {
+            mockTestQuestions = mapper.readValue(file, new TypeReference<List<MockTestQuestions>>() {
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return mockTestQuestions;
     }
 
     public List<String> getAuthenticatedMockTests(String username) {
-        List<UserCourseDetails> userCourseDetails = userCourseRepository.findByUsername(username);
+        UserCourseDetails userCourseDetails = userCourseRepository.findByUsername(username);
         List<String> allowedTests = null;
-        for(UserCourseDetails course: userCourseDetails) {
-            allowedTests.add(course.getAllowedMockTest());
+        if(userCourseDetails.getAllowedMockTests() != null && !userCourseDetails.getAllowedMockTests().isEmpty()) {
+            if(userCourseDetails.getAllowedMockTests().indexOf(",") != -1){
+                allowedTests = Arrays.asList(userCourseDetails.getAllowedMockTests().split(","));
+            } else {
+                allowedTests.add(userCourseDetails.getAllowedMockTests());
+            }
         }
         return allowedTests;
     }
@@ -35,11 +56,7 @@ public class MockTestsService {
     public TestResultResponse evaluateResults(TestResultRequest testResultRequest) {
         String username = testResultRequest.getUsername();
         String testName = testResultRequest.getTestName();
-        List<MockTestQuestions> mockTestQuestions = mockTestRepository.findByTestType(testName);
-        List<Integer> storedAnswers = new ArrayList<>();
-        for(MockTestQuestions mockTestQuestion : mockTestQuestions) {
-            storedAnswers.add(mockTestQuestion.getAnswer());
-        }
+        List<Integer> storedAnswers = MockTests.getAnswers(testName);
         int i =0;
         int correctAnswers = 0;
         int wrongAnswers = 0;
@@ -57,6 +74,20 @@ public class MockTestsService {
             }
         }
         TestResultResponse testResultResponse = new TestResultResponse(correctAnswers, totalQuestions, totalQuestions - unAnsweredQuestions);
+
+        UserTestResults userTestResults = new UserTestResults();
+        userTestResults.setUsername(username);
+        userTestResults.setTestType(testName);
+        userTestResults.setCorrectAnswers(correctAnswers);
+        userTestResults.setAttemptedQuestions(totalQuestions - unAnsweredQuestions);
+        testResultsRepository.save(userTestResults);
+
+        return testResultResponse;
+    }
+
+    public TestResultResponse getResults(String username, String testType) {
+        UserTestResults userTestResults = testResultsRepository.findByTestTypeAndUsername(testType, username);
+        TestResultResponse testResultResponse = new TestResultResponse(userTestResults.getCorrectAnswers(), 75, userTestResults.getAttemptedQuestions());
 
         return testResultResponse;
     }

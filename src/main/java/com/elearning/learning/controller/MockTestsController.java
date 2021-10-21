@@ -34,6 +34,12 @@ public class MockTestsController {
         return ResponseEntity.ok().body(testResultResponse);
     }
 
+    @GetMapping("/showResults")
+    public ResponseEntity<TestResultResponse> evaluateResults(@RequestParam("username") String username, @RequestParam("testType") String testType) {
+        TestResultResponse testResultResponse = mockTestsService.getResults(username, testType);
+        return ResponseEntity.ok().body(testResultResponse);
+    }
+
 
 
 }

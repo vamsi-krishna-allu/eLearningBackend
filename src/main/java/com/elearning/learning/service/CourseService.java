@@ -5,6 +5,7 @@ import com.elearning.learning.repository.UserCourseRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -14,10 +15,14 @@ public class CourseService {
     private final UserCourseRepository userCourseRepository;
 
     public List<String> getAuthenticatedCourses(String username) {
-        List<UserCourseDetails> userCourseDetails = userCourseRepository.findByUsername(username);
+        UserCourseDetails userCourseDetails = userCourseRepository.findByUsername(username);
         List<String> allowedCourses = null;
-        for(UserCourseDetails course: userCourseDetails) {
-            allowedCourses.add(course.getAllowedCourse());
+        if(userCourseDetails.getAllowedCourses() != null && !userCourseDetails.getAllowedCourses().isEmpty()) {
+            if(userCourseDetails.getAllowedCourses().indexOf(",") != -1){
+                allowedCourses = Arrays.asList(userCourseDetails.getAllowedCourses().split(","));
+            } else {
+                allowedCourses.add(userCourseDetails.getAllowedCourses());
+            }
         }
         return allowedCourses;
     }
