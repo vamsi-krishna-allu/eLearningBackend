@@ -1,5 +1,6 @@
 package com.elearning.learning.controller;
 
+import com.elearning.learning.constants.MockTests;
 import com.elearning.learning.model.Order;
 import com.elearning.learning.service.PaypalService;
 import com.paypal.api.payments.Links;
@@ -15,14 +16,18 @@ public class PaypalController {
 
     private final PaypalService service;
     private static Order order;
+    private final String SUCCESS = "success";
+    private final String FAILED = "failed";
+    private final String urlPrefix = "http://localhost:8080/";
 
     @PostMapping(value = "/pay")
     public String payment(@RequestBody Order order) {
         try {
             this.order = order;
-            Payment payment = service.createPayment(order.getPrice(), "INR", "paypal",
-                    "sale", order.getPlanType() + " plan for " + order.getCourseId() + " to " + order.getUserName(), "http://localhost:8080/" + "pay/cancel",
-                    "http://localhost:8080/" + "pay/success");
+            Double amount = MockTests.getAmountFromPlanAndType(order.getType(), order.getPlanType());
+            Payment payment = service.createPayment(amount, "INR", "paypal",
+                    "sale", order.getPlanType() + " plan for " + order.getCourseId() + " to " + order.getUserName(), urlPrefix + "pay/cancel",
+                    urlPrefix + "pay/success");
             for(Links link:payment.getLinks()) {
                 if(link.getRel().equals("approval_url")) {
                     return "redirect:"+link.getHref();
@@ -33,13 +38,13 @@ public class PaypalController {
 
             e.printStackTrace();
         }
-        return "success";
+        return SUCCESS;
     }
 
     @GetMapping(value = "pay/cancel")
     public String cancelPay() {
         this.order = new Order();
-        return "cancel";
+        return FAILED;
     }
 
     @GetMapping(value = "pay/success")
@@ -49,12 +54,12 @@ public class PaypalController {
             System.out.println(payment.toJSON());
             if (payment.getState().equals("approved")) {
                 service.updateCourseForUser(this.order);
-                return "success";
+                return SUCCESS;
             }
         } catch (PayPalRESTException e) {
             System.out.println(e.getMessage());
         }
-        return "successed";
+        return SUCCESS;
     }
 
 }

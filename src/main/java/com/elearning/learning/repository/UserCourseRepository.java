@@ -13,12 +13,17 @@ public interface UserCourseRepository extends CrudRepository<UserCourseDetails, 
     UserCourseDetails findByUsername(String username);
 
     @Modifying
-    @Query("update user_courses u set u.allowedCourses = :allowedCourses, u.allowedMockTests = :allowedMockTests where u.username = :username")
+    @Query("update UserCourseDetails u set u.allowedCourses = :allowedCourses, u.allowedMockTests = :allowedMockTests where u.username = :username")
     void updateAllowedCourseAndTests(@Param(value = "username") String username, @Param(value = "allowedCourses") String allowedCourses,
                                      @Param(value = "allowedMockTests") String allowedMockTests);
 
     @Modifying
-    @Query("update user_courses u set u.allowedMockTests = :allowedMockTests where u.username = :username")
+    @Query("update UserCourseDetails u set u.allowedMockTests = :allowedMockTests where u.username = :username")
     void updateAllowedTest(@Param(value = "username") String username,
                                      @Param(value = "allowedMockTests") String allowedMockTests);
+
+    @Modifying
+    @Query("update UserCourseDetails u set u.submittedMockTests = :submittedMockTests where u.username = :username")
+    void updateSubmittedTest(@Param(value = "username") String username,
+                           @Param(value = "allowedMockTests") String submittedMockTests);
 }

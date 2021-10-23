@@ -21,5 +21,7 @@ public class UserCourseDetails {
     private String allowedCourses;
     @Column
     private String allowedMockTests;
+    @Column
+    private String submittedMockTests;
 
 }

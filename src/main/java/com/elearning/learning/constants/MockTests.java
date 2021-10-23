@@ -308,4 +308,25 @@ public class MockTests {
 
         return Arrays.asList(answers.get(testType));
     }
+
+    public static Double getAmountFromPlanAndType(String type, String plan) {
+        if(type == "TEST") {
+            if(plan == "BASIC") {
+                return 150.00;
+            } else if(plan == "STANDARD") {
+                return 200.00;
+            } else if(plan == "PREMIUM"){
+                return 250.00;
+            }
+        } else if(type == "COURSE") {
+            if(plan == "BASIC") {
+                return 200.00;
+            } else if(plan == "STANDARD") {
+                return 250.00;
+            } else if(plan == "PREMIUM"){
+                return 300.00;
+            }
+        }
+        return 0.00;
+    }
 }

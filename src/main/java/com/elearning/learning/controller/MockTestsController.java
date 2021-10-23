@@ -3,6 +3,7 @@ package com.elearning.learning.controller;
 import com.elearning.learning.entities.MockTestQuestions;
 import com.elearning.learning.model.TestResultRequest;
 import com.elearning.learning.model.TestResultResponse;
+import com.elearning.learning.model.UserTestDetails;
 import com.elearning.learning.service.MockTestsService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,8 +24,8 @@ public class MockTestsController {
     }
 
     @GetMapping("/authenticatedTests")
-    public ResponseEntity<List<String>> getAuthenticatedCourses(@RequestParam("username") String username){
-        List<String> authenticatedMockTests = mockTestsService.getAuthenticatedMockTests(username);
+    public ResponseEntity<UserTestDetails> getAuthenticatedCourses(@RequestParam("username") String username){
+        UserTestDetails authenticatedMockTests = mockTestsService.getAuthenticatedMockTests(username);
         return ResponseEntity.ok(authenticatedMockTests);
     }
 

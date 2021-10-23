@@ -6,12 +6,15 @@ import com.elearning.learning.entities.UserCourseDetails;
 import com.elearning.learning.entities.UserTestResults;
 import com.elearning.learning.model.TestResultRequest;
 import com.elearning.learning.model.TestResultResponse;
+import com.elearning.learning.model.UserTestDetails;
 import com.elearning.learning.repository.TestResultsRepository;
 import com.elearning.learning.repository.UserCourseRepository;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,9 +43,10 @@ public class MockTestsService {
         return mockTestQuestions;
     }
 
-    public List<String> getAuthenticatedMockTests(String username) {
+    public UserTestDetails getAuthenticatedMockTests(String username) {
         UserCourseDetails userCourseDetails = userCourseRepository.findByUsername(username);
         List<String> allowedTests = null;
+        List<String> submittedTests = null;
         if(userCourseDetails.getAllowedMockTests() != null && !userCourseDetails.getAllowedMockTests().isEmpty()) {
             if(userCourseDetails.getAllowedMockTests().indexOf(",") != -1){
                 allowedTests = Arrays.asList(userCourseDetails.getAllowedMockTests().split(","));
@@ -50,7 +54,15 @@ public class MockTestsService {
                 allowedTests.add(userCourseDetails.getAllowedMockTests());
             }
         }
-        return allowedTests;
+        if(userCourseDetails.getSubmittedMockTests() != null && !userCourseDetails.getSubmittedMockTests().isEmpty()) {
+            if(userCourseDetails.getSubmittedMockTests().indexOf(",") != -1){
+                submittedTests = Arrays.asList(userCourseDetails.getSubmittedMockTests().split(","));
+            } else {
+                submittedTests.add(userCourseDetails.getAllowedMockTests());
+            }
+        }
+        UserTestDetails userTestDetails = new UserTestDetails(allowedTests, submittedTests);
+        return userTestDetails;
     }
 
     public TestResultResponse evaluateResults(TestResultRequest testResultRequest) {
@@ -81,6 +93,13 @@ public class MockTestsService {
         userTestResults.setCorrectAnswers(correctAnswers);
         userTestResults.setAttemptedQuestions(totalQuestions - unAnsweredQuestions);
         testResultsRepository.save(userTestResults);
+
+        UserCourseDetails userCourseDetails = userCourseRepository.findByUsername(username);
+        String submittedTest = testName;
+        if(!StringUtils.isEmpty(userCourseDetails.getSubmittedMockTests())) {
+            submittedTest = userCourseDetails.getSubmittedMockTests().concat(",").concat(testName);
+        }
+        userCourseRepository.updateSubmittedTest(username, submittedTest);
 
         return testResultResponse;
     }
