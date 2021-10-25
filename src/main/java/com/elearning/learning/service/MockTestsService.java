@@ -17,6 +17,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,8 +45,8 @@ public class MockTestsService {
 
     public UserTestDetails getAuthenticatedMockTests(String username) {
         UserCourseDetails userCourseDetails = userCourseRepository.findByUsername(username);
-        List<String> allowedTests = null;
-        List<String> submittedTests = null;
+        List<String> allowedTests = new ArrayList<String>();
+        List<String> submittedTests = new ArrayList<String>();
         if(userCourseDetails.getAllowedMockTests() != null && !userCourseDetails.getAllowedMockTests().isEmpty()) {
             if(userCourseDetails.getAllowedMockTests().indexOf(",") != -1){
                 allowedTests = Arrays.asList(userCourseDetails.getAllowedMockTests().split(","));
@@ -57,7 +58,7 @@ public class MockTestsService {
             if(userCourseDetails.getSubmittedMockTests().indexOf(",") != -1){
                 submittedTests = Arrays.asList(userCourseDetails.getSubmittedMockTests().split(","));
             } else {
-                submittedTests.add(userCourseDetails.getAllowedMockTests());
+                submittedTests.add(userCourseDetails.getSubmittedMockTests());
             }
         }
         UserTestDetails userTestDetails = new UserTestDetails(allowedTests, submittedTests);

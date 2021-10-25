@@ -12,6 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserTestDetails {
-    private List<String> alloweedMockTests;
+    private List<String> availableMockTests;
     private List<String> submittedMockTests;
 }
