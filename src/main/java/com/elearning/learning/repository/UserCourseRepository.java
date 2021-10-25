@@ -25,5 +25,5 @@ public interface UserCourseRepository extends CrudRepository<UserCourseDetails, 
     @Modifying
     @Query("update UserCourseDetails u set u.submittedMockTests = :submittedMockTests where u.username = :username")
     void updateSubmittedTest(@Param(value = "username") String username,
-                           @Param(value = "allowedMockTests") String submittedMockTests);
+                           @Param(value = "submittedMockTests") String submittedMockTests);
 }

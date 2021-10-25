@@ -1,7 +1,7 @@
 package com.elearning.learning.service;
 
 import com.elearning.learning.constants.MockTests;
-import com.elearning.learning.entities.MockTestQuestions;
+import com.elearning.learning.model.MockTestQuestions;
 import com.elearning.learning.entities.UserCourseDetails;
 import com.elearning.learning.entities.UserTestResults;
 import com.elearning.learning.model.TestResultRequest;
@@ -13,7 +13,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.File;

@@ -1,6 +1,6 @@
 package com.elearning.learning.controller;
 
-import com.elearning.learning.entities.MockTestQuestions;
+import com.elearning.learning.model.MockTestQuestions;
 import com.elearning.learning.model.TestResultRequest;
 import com.elearning.learning.model.TestResultResponse;
 import com.elearning.learning.model.UserTestDetails;
