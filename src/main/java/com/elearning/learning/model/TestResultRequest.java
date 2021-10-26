@@ -17,4 +17,5 @@ public class TestResultRequest implements Serializable {
     private String username;
     private String testName;
     private List<Integer> answer;
+    private Integer timeTaken;
 }

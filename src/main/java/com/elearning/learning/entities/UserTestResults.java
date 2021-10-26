@@ -22,5 +22,7 @@ public class UserTestResults {
     private Integer attemptedQuestions;
     @Column
     private Integer correctAnswers;
+    @Column
+    private Integer timeTaken;
     
 }

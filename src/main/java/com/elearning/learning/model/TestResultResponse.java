@@ -16,4 +16,5 @@ public class TestResultResponse implements Serializable {
     private int marksScored;
     private int totalMarks;
     private int attemptedQuestions;
+    private int timeTaken;
 }

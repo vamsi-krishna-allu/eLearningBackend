@@ -68,6 +68,7 @@ public class MockTestsService {
     public TestResultResponse evaluateResults(TestResultRequest testResultRequest) {
         String username = testResultRequest.getUsername();
         String testName = testResultRequest.getTestName();
+
         List<Integer> storedAnswers = MockTests.getAnswers(testName);
         int i =0;
         int correctAnswers = 0;
@@ -85,13 +86,14 @@ public class MockTestsService {
                 wrongAnswers = wrongAnswers + 1;
             }
         }
-        TestResultResponse testResultResponse = new TestResultResponse(correctAnswers, totalQuestions, totalQuestions - unAnsweredQuestions);
+        TestResultResponse testResultResponse = new TestResultResponse(correctAnswers, totalQuestions, totalQuestions - unAnsweredQuestions,  testResultRequest.getTimeTaken());
 
         UserTestResults userTestResults = new UserTestResults();
         userTestResults.setUsername(username);
         userTestResults.setTestType(testName);
         userTestResults.setCorrectAnswers(correctAnswers);
         userTestResults.setAttemptedQuestions(totalQuestions - unAnsweredQuestions);
+        userTestResults.setTimeTaken(testResultRequest.getTimeTaken());
         testResultsRepository.save(userTestResults);
 
         UserCourseDetails userCourseDetails = userCourseRepository.findByUsername(username);
@@ -106,7 +108,7 @@ public class MockTestsService {
 
     public TestResultResponse getResults(String username, String testType) {
         UserTestResults userTestResults = testResultsRepository.findByTestTypeAndUsername(testType, username);
-        TestResultResponse testResultResponse = new TestResultResponse(userTestResults.getCorrectAnswers(), 75, userTestResults.getAttemptedQuestions());
+        TestResultResponse testResultResponse = new TestResultResponse(userTestResults.getCorrectAnswers(), 75, userTestResults.getAttemptedQuestions(), userTestResults.getTimeTaken());
 
         return testResultResponse;
     }
