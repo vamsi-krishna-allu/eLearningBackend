@@ -70,15 +70,15 @@ public class PaypalService {
         UserCourseDetails userCourseDetails = userCourseRepository.findByUsername(order.getUserName());
         String availableCourses = userCourseDetails.getAllowedCourses();
         String availableTests = userCourseDetails.getAllowedMockTests();
-        if(order.getType() == "COURSE") {
-            if(order.getPlanType() == "BASIC") {
+        if("COURSE".equals(order.getType())) {
+            if("BASIC".equals(order.getPlanType())) {
                 availableCourses = availableCourses.concat(",").concat(order.getCourseId());
                 availableTests = availableTests.concat(",").concat(order.getCourseId()+"-test-1");
-            } else if(order.getPlanType() == "STANDARD") {
+            } else if("STANDARD".equals(order.getPlanType())) {
                 availableCourses = availableCourses.concat(",").concat(order.getCourseId());
                 availableTests = availableTests.concat(",").concat(order.getCourseId()+"-test-1")
                         .concat(",").concat(order.getCourseId()+"-test-2");
-            } else if(order.getPlanType() == "PLATINUM") {
+            } else if("PLATINUM".equals(order.getPlanType())) {
                 availableCourses = availableCourses.concat(",").concat(order.getCourseId());
                 availableTests = availableTests.concat(",").concat(order.getCourseId()+"-test-1")
                         .concat(",").concat(order.getCourseId()+"-test-2").concat(",")
@@ -91,13 +91,13 @@ public class PaypalService {
             }catch(Exception e) {
                 return "UPDATE FAILED";
             }
-        } else if(order.getType() == "TEST") {
-            if(order.getPlanType() == "BASIC") {
+        } else if("TEST".equals(order.getType())) {
+            if("BASIC".equals(order.getPlanType())) {
                 availableTests = availableTests.concat(",").concat(order.getCourseId()+"-test-1");
-            } else if(order.getPlanType() == "STANDARD") {
+            } else if("STANDARD".equals(order.getPlanType())) {
                 availableTests = availableTests.concat(",").concat(order.getCourseId()+"-test-1")
                         .concat(",").concat(order.getCourseId()+"-test-2");
-            } else if(order.getPlanType() == "PLATINUM") {
+            } else if("PLATINUM".equals(order.getPlanType())) {
                 availableTests = availableTests.concat(",").concat(order.getCourseId()+"-test-1")
                         .concat(",").concat(order.getCourseId()+"-test-2").concat(",")
                         .concat(order.getCourseId()+"-test-3").concat(",")

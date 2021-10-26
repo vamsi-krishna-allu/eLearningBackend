@@ -2,11 +2,13 @@ package com.elearning.learning.controller;
 
 import com.elearning.learning.constants.MockTests;
 import com.elearning.learning.model.Order;
+import com.elearning.learning.model.PaymentResponse;
 import com.elearning.learning.service.PaypalService;
 import com.paypal.api.payments.Links;
 import com.paypal.api.payments.Payment;
 import com.paypal.base.rest.PayPalRESTException;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,10 +20,11 @@ public class PaypalController {
     private static Order order;
     private final String SUCCESS = "success";
     private final String FAILED = "failed";
-    private final String urlPrefix = "http://localhost:8080/";
+    private final String urlPrefix = "http://localhost:5000/";
 
     @PostMapping(value = "/pay")
-    public String payment(@RequestBody Order order) {
+    public ResponseEntity<PaymentResponse> payment(@RequestBody Order order) {
+        PaymentResponse paymentResponse = new PaymentResponse();
         try {
             this.order = order;
             Double amount = MockTests.getAmountFromPlanAndType(order.getType(), order.getPlanType());
@@ -30,7 +33,9 @@ public class PaypalController {
                     urlPrefix + "pay/success");
             for(Links link:payment.getLinks()) {
                 if(link.getRel().equals("approval_url")) {
-                    return "redirect:"+link.getHref();
+                    paymentResponse.setRedirectUrl(link.getHref());
+                    paymentResponse.setStatus(SUCCESS);
+                    return ResponseEntity.ok().body(paymentResponse);
                 }
             }
 
@@ -38,28 +43,30 @@ public class PaypalController {
 
             e.printStackTrace();
         }
-        return SUCCESS;
+        paymentResponse.setRedirectUrl("");
+        paymentResponse.setStatus(FAILED);
+        return ResponseEntity.ok().body(paymentResponse);
     }
 
-    @GetMapping(value = "pay/cancel")
-    public String cancelPay() {
+    @GetMapping(value = "/pay/cancel")
+    public String cancelPay(@RequestParam("token") String token) {
         this.order = new Order();
-        return FAILED;
+        return "redirect:http://localhost:4200/noBooks/home";
     }
 
-    @GetMapping(value = "pay/success")
+    @GetMapping(value = "/pay/success")
     public String successPay(@RequestParam("paymentId") String paymentId, @RequestParam("PayerID") String payerId) {
         try {
             Payment payment = service.executePayment(paymentId, payerId);
             System.out.println(payment.toJSON());
             if (payment.getState().equals("approved")) {
                 service.updateCourseForUser(this.order);
-                return SUCCESS;
+                return "redirect:http://localhost:4200/noBooks/home";
             }
         } catch (PayPalRESTException e) {
             System.out.println(e.getMessage());
         }
-        return SUCCESS;
+        return "redirect:http://localhost:4200/noBooks/home";
     }
 
 }

@@ -310,21 +310,21 @@ public class MockTests {
     }
 
     public static Double getAmountFromPlanAndType(String type, String plan) {
-        if(type == "TEST") {
-            if(plan == "BASIC") {
-                return 150.00;
-            } else if(plan == "STANDARD") {
-                return 200.00;
-            } else if(plan == "PREMIUM"){
-                return 250.00;
+        if("TEST".equals(type)) {
+            if("BASIC".equals(plan)) {
+                return 1.00;
+            } else if("STANDARD".equals(plan)) {
+                return 2.00;
+            } else if("PREMIUM".equals(plan)){
+                return 2.50;
             }
-        } else if(type == "COURSE") {
-            if(plan == "BASIC") {
-                return 200.00;
-            } else if(plan == "STANDARD") {
-                return 250.00;
-            } else if(plan == "PREMIUM"){
-                return 300.00;
+        } else if("COURSE".equals(type)) {
+            if("BASIC".equals(plan)) {
+                return 2.00;
+            } else if("STANDARD".equals(plan)) {
+                return 2.50;
+            } else if("PREMIUM".equals(plan)){
+                return 3.00;
             }
         }
         return 0.00;
