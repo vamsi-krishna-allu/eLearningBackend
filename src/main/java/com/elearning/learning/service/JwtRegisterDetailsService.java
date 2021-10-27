@@ -6,6 +6,7 @@ import com.elearning.learning.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -21,7 +22,7 @@ public class JwtRegisterDetailsService {
         newUser.setPassword(bcryptEncoder.encode(student.getPassword()));
         return userRepository.save(newUser);
     }
-
+    @Transactional
     public String updatePassword(Student student) {
         StudentDetails studentDetails = userRepository.findByUsernameAndPassword(student.getUsername(), bcryptEncoder.encode(student.getPassword()));
         if(studentDetails == null){
