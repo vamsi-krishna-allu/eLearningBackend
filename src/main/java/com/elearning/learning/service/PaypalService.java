@@ -1,6 +1,7 @@
 package com.elearning.learning.service;
 
 import com.elearning.learning.entities.UserCourseDetails;
+import com.elearning.learning.model.Order;
 import com.elearning.learning.repository.UserCourseRepository;
 import com.paypal.api.payments.*;
 import com.paypal.base.rest.APIContext;
@@ -8,6 +9,7 @@ import com.paypal.base.rest.PayPalRESTException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -69,6 +71,9 @@ public class PaypalService {
     @Transactional
     public String updateCourseForUser(com.elearning.learning.model.Order order) {
         UserCourseDetails userCourseDetails = userCourseRepository.findByUsername(order.getUserName());
+        if(ObjectUtils.isEmpty(userCourseDetails)) {
+            return insertCourseDetails(order);
+        }
         String availableCourses = userCourseDetails.getAllowedCourses();
         String availableTests = userCourseDetails.getAllowedMockTests();
         if("COURSE".equals(order.getType())) {
@@ -113,5 +118,62 @@ public class PaypalService {
 
         }
         return "UPDATE SUCCESSFUL";
+    }
+
+    private String insertCourseDetails(com.elearning.learning.model.Order order) {
+        String availableCourses;
+        String availableTests = null;
+        if("COURSE".equals(order.getType())) {
+            availableCourses = order.getCourseId();
+            if("BASIC".equals(order.getPlanType())) {
+                availableTests = order.getCourseId()+"-test-1";
+            } else if("STANDARD".equals(order.getPlanType())) {
+                availableTests = (order.getCourseId()+"-test-1")
+                        .concat(",").concat(order.getCourseId()+"-test-2");
+            } else if("PLATINUM".equals(order.getPlanType())) {
+                availableTests = (order.getCourseId()+"-test-1")
+                        .concat(",").concat(order.getCourseId()+"-test-2").concat(",")
+                        .concat(order.getCourseId()+"-test-3").concat(",")
+                        .concat(order.getCourseId()+"-test-4");
+            }
+            try {
+                UserCourseDetails userCourseDetails = new UserCourseDetails();
+                userCourseDetails.setUsername(order.getUserName());
+                userCourseDetails.setAllowedCourses(availableCourses);
+                userCourseDetails.setAllowedMockTests(availableTests);
+                userCourseDetails.setSubmittedMockTests(null);
+                userCourseRepository.save(userCourseDetails);
+                return "INSERT SUCCESSFUL";
+            }catch(Exception e) {
+                return "INSERT FAILED";
+            }
+        } else if("TEST".equals(order.getType())) {
+            availableTests = order.getCourseId()+"-test-1";
+            if("BASIC".equals(order.getPlanType())) {
+                availableTests = availableTests;
+            } else if("STANDARD".equals(order.getPlanType())) {
+                availableTests = (availableTests)
+                        .concat(",").concat(order.getCourseId()+"-test-2");
+            } else if("PLATINUM".equals(order.getPlanType())) {
+                availableTests = (availableTests)
+                        .concat(",").concat(order.getCourseId()+"-test-2").concat(",")
+                        .concat(order.getCourseId()+"-test-3").concat(",")
+                        .concat(order.getCourseId()+"-test-4");
+            }
+            try {
+                UserCourseDetails userCourseDetails = new UserCourseDetails();
+                userCourseDetails.setUsername(order.getUserName());
+                userCourseDetails.setAllowedCourses(null);
+                userCourseDetails.setAllowedMockTests(availableTests);
+                userCourseDetails.setSubmittedMockTests(null);
+                userCourseRepository.save(userCourseDetails);
+                userCourseRepository.save(userCourseDetails);
+                return "INSERT SUCCESSFUL";
+            }catch(Exception e) {
+                return "INSERT FAILED";
+            }
+
+        }
+        return "INSERT FAILED";
     }
 }
