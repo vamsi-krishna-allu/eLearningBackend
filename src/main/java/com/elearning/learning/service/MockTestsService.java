@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
@@ -64,7 +65,7 @@ public class MockTestsService {
         UserTestDetails userTestDetails = new UserTestDetails(allowedTests, submittedTests);
         return userTestDetails;
     }
-
+    @Transactional
     public TestResultResponse evaluateResults(TestResultRequest testResultRequest) {
         String username = testResultRequest.getUsername();
         String testName = testResultRequest.getTestName();
