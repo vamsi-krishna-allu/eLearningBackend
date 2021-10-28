@@ -1,14 +1,12 @@
 package com.elearning.learning.service;
 
 import com.elearning.learning.constants.MockTests;
-import com.elearning.learning.model.MockTestQuestions;
+import com.elearning.learning.model.*;
 import com.elearning.learning.entities.UserCourseDetails;
 import com.elearning.learning.entities.UserTestResults;
-import com.elearning.learning.model.TestResultRequest;
-import com.elearning.learning.model.TestResultResponse;
-import com.elearning.learning.model.UserTestDetails;
 import com.elearning.learning.repository.TestResultsRepository;
 import com.elearning.learning.repository.UserCourseRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
@@ -20,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -44,15 +43,17 @@ public class MockTestsService {
         return mockTestQuestions;
     }
 
-    public UserTestDetails getAuthenticatedMockTests(String username) {
+    public UserTestDetails getAuthenticatedMockTests(String username) throws JsonProcessingException {
         UserCourseDetails userCourseDetails = userCourseRepository.findByUsername(username);
-        List<String> allowedTests = new ArrayList<String>();
-        List<String> submittedTests = new ArrayList<String>();
+        List<String> allowedTests = new ArrayList<>();
+        List<String> submittedTests = new ArrayList<>();
         if(userCourseDetails.getAllowedMockTests() != null && !userCourseDetails.getAllowedMockTests().isEmpty()) {
-            if(userCourseDetails.getAllowedMockTests().indexOf(",") != -1){
-                allowedTests = Arrays.asList(userCourseDetails.getAllowedMockTests().split(","));
-            } else {
-                allowedTests.add(userCourseDetails.getAllowedMockTests());
+            ObjectMapper mapper = new ObjectMapper();
+            List<CourseMapper> testList = mapper.readValue(userCourseDetails.getAllowedMockTests(), new TypeReference<List<CourseMapper>>(){});
+            for(CourseMapper test : testList) {
+                if(new Date(test.getEndTime()).after(new Date())) {
+                    allowedTests.add(test.getId());
+                }
             }
         }
         if(userCourseDetails.getSubmittedMockTests() != null && !userCourseDetails.getSubmittedMockTests().isEmpty()) {
@@ -87,7 +88,8 @@ public class MockTestsService {
                 wrongAnswers = wrongAnswers + 1;
             }
         }
-        TestResultResponse testResultResponse = new TestResultResponse(correctAnswers, totalQuestions, totalQuestions - unAnsweredQuestions,  testResultRequest.getTimeTaken());
+        TestResultResponse testResultResponse = new TestResultResponse(correctAnswers, totalQuestions, totalQuestions - unAnsweredQuestions,  testResultRequest.getTimeTaken(),
+                testResultRequest.getStartTime(), testResultRequest.getEndTime());
 
         UserTestResults userTestResults = new UserTestResults();
         userTestResults.setUsername(username);
@@ -95,6 +97,8 @@ public class MockTestsService {
         userTestResults.setCorrectAnswers(correctAnswers);
         userTestResults.setAttemptedQuestions(totalQuestions - unAnsweredQuestions);
         userTestResults.setTimeTaken(testResultRequest.getTimeTaken());
+        userTestResults.setStartTime(testResultRequest.getStartTime());
+        userTestResults.setEndTime(testResultRequest.getEndTime());
         testResultsRepository.save(userTestResults);
 
         UserCourseDetails userCourseDetails = userCourseRepository.findByUsername(username);
@@ -109,7 +113,8 @@ public class MockTestsService {
 
     public TestResultResponse getResults(String username, String testType) {
         UserTestResults userTestResults = testResultsRepository.findByTestTypeAndUsername(testType, username);
-        TestResultResponse testResultResponse = new TestResultResponse(userTestResults.getCorrectAnswers(), 75, userTestResults.getAttemptedQuestions(), userTestResults.getTimeTaken());
+        TestResultResponse testResultResponse = new TestResultResponse(userTestResults.getCorrectAnswers(), 75, userTestResults.getAttemptedQuestions(), userTestResults.getTimeTaken(),
+                userTestResults.getStartTime(), userTestResults.getEndTime());
 
         return testResultResponse;
     }

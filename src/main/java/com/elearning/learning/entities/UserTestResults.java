@@ -24,5 +24,9 @@ public class UserTestResults {
     private Integer correctAnswers;
     @Column
     private Integer timeTaken;
+    @Column
+    private String startTime;
+    @Column
+    private String endTime;
     
 }

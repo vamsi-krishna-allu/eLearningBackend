@@ -5,6 +5,7 @@ import com.elearning.learning.model.TestResultRequest;
 import com.elearning.learning.model.TestResultResponse;
 import com.elearning.learning.model.UserTestDetails;
 import com.elearning.learning.service.MockTestsService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class MockTestsController {
     }
 
     @GetMapping("/authenticatedTests")
-    public ResponseEntity<UserTestDetails> getAuthenticatedCourses(@RequestParam("username") String username){
+    public ResponseEntity<UserTestDetails> getAuthenticatedCourses(@RequestParam("username") String username) throws JsonProcessingException {
         UserTestDetails authenticatedMockTests = mockTestsService.getAuthenticatedMockTests(username);
         return ResponseEntity.ok(authenticatedMockTests);
     }

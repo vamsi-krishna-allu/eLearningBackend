@@ -18,4 +18,6 @@ public class TestResultRequest implements Serializable {
     private String testName;
     private List<Integer> answer;
     private Integer timeTaken;
+    private String startTime;
+    private String endTime;
 }
