@@ -57,10 +57,6 @@ public class JwtAuthenticationController {
 
     @PostMapping(value = "/changePassword")
     public ResponseEntity<?> updatePassword(@RequestBody Student student) throws Exception {
-        try {
-            return ResponseEntity.ok(jwtRegisterDetailsService.updatePassword(student));
-        } catch (Exception e) {
-            throw new Exception("UNABLE TO CHANGE PASSWORD", e);
-        }
+        return ResponseEntity.ok(jwtRegisterDetailsService.updatePassword(student));
     }
 }

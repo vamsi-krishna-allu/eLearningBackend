@@ -23,10 +23,10 @@ public class JwtRegisterDetailsService {
         return userRepository.save(newUser);
     }
     @Transactional
-    public String updatePassword(Student student) {
+    public String updatePassword(Student student) throws Exception {
         StudentDetails studentDetails = userRepository.findByUsernameAndPassword(student.getUsername(), bcryptEncoder.encode(student.getPassword()));
         if(studentDetails == null){
-            return "Incorrect your username or password";
+            throw new Exception("Incorrect your username or password");
         }
         return userRepository.updatePassword(studentDetails.getId(), bcryptEncoder.encode(student.getPassword()));
     }
