@@ -1,9 +1,12 @@
 package com.elearning.learning.service;
 
 import com.elearning.learning.entities.StudentDetails;
+import com.elearning.learning.exception.EmailValidationException;
 import com.elearning.learning.model.Student;
 import com.elearning.learning.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,9 +19,22 @@ public class JwtRegisterDetailsService {
 
     private final PasswordEncoder bcryptEncoder;
 
-    public StudentDetails save(Student student) {
+    private final JavaMailSender javaMailSender;
+
+    public StudentDetails save(Student student) throws EmailValidationException {
+
+        try{
+            SimpleMailMessage msg = new SimpleMailMessage();
+            msg.setTo(student.getUsername());
+            msg.setSubject("Validated your account");
+            msg.setText("Your account is successfully created.");
+            javaMailSender.send(msg);
+        }catch(Exception e){
+            throw new EmailValidationException();
+        }
         StudentDetails newUser = new StudentDetails();
         newUser.setUsername(student.getUsername());
+
         newUser.setPassword(bcryptEncoder.encode(student.getPassword()));
         return userRepository.save(newUser);
     }

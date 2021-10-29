@@ -25,4 +25,9 @@ public class ExceptionHandler {
 		return new ResponseEntity<String>("Payment got failed, if your money debited please contact to support@nobookslearning.com",HttpStatus.INTERNAL_SERVER_ERROR);
 		
 	}
+
+	@org.springframework.web.bind.annotation.ExceptionHandler(EmailValidationException.class)
+	public ResponseEntity<String> emailValidationFailure(EmailValidationException exception) {
+		return new ResponseEntity<String>("Email validation failed, please enter a valid email",HttpStatus.NOT_FOUND);
+	}
 }

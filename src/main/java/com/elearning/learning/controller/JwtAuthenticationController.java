@@ -1,6 +1,7 @@
 package com.elearning.learning.controller;
 
 import com.elearning.learning.config.JwtTokenUtil;
+import com.elearning.learning.exception.EmailValidationException;
 import com.elearning.learning.model.JwtRequest;
 import com.elearning.learning.model.JwtResponse;
 import com.elearning.learning.model.Student;
@@ -51,7 +52,7 @@ public class JwtAuthenticationController {
     }
 
     @PostMapping(value = "/register")
-    public ResponseEntity<?> saveUser(@RequestBody Student student) throws Exception {
+    public ResponseEntity<?> saveUser(@RequestBody Student student) throws EmailValidationException {
          return ResponseEntity.ok(jwtRegisterDetailsService.save(student));
     }
 
