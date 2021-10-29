@@ -47,7 +47,7 @@ public class MockTestsService {
         UserCourseDetails userCourseDetails = userCourseRepository.findByUsername(username);
         List<String> allowedTests = new ArrayList<>();
         List<String> submittedTests = new ArrayList<>();
-        if(userCourseDetails.getAllowedMockTests() != null && !userCourseDetails.getAllowedMockTests().isEmpty()) {
+        if(userCourseDetails.getAllowedMockTests() != null && !StringUtils.isEmpty(userCourseDetails.getAllowedMockTests())) {
             ObjectMapper mapper = new ObjectMapper();
             List<CourseMapper> testList = mapper.readValue(userCourseDetails.getAllowedMockTests(), new TypeReference<List<CourseMapper>>(){});
             for(CourseMapper test : testList) {
@@ -61,6 +61,12 @@ public class MockTestsService {
                 submittedTests = Arrays.asList(userCourseDetails.getSubmittedMockTests().split(","));
             } else {
                 submittedTests.add(userCourseDetails.getSubmittedMockTests());
+            }
+        }
+        List<String> submittedTestCopy = submittedTests;
+        for(String submittedTest: submittedTestCopy) {
+            if(!allowedTests.contains(submittedTest)) {
+                submittedTests.remove(submittedTest);
             }
         }
         UserTestDetails userTestDetails = new UserTestDetails(allowedTests, submittedTests);

@@ -14,6 +14,7 @@ import com.paypal.base.rest.PayPalRESTException;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -101,7 +102,8 @@ public class PaypalService {
             if("BASIC".equals(order.getPlanType())) {
 
                 courseMapper.setId(order.getCourseId());
-                updateBasicPlanData(order, testList, courseMapper, testMapper, c, testCalendar);
+                c.add(Calendar.MONTH, 1);
+                courseMapper.setEndTime(c.getTimeInMillis());
 
             } else if("STANDARD".equals(order.getPlanType())) {
 
@@ -132,9 +134,10 @@ public class PaypalService {
             try {
                 coursesList.add(courseMapper);
                 Gson courseGson = new Gson();
+                String testData = CollectionUtils.isEmpty(testList) ? "" : courseGson.toJson(testList);
                 userCourseRepository.updateAllowedCourseAndTests(order.getUserName(),
                         courseGson.toJson(coursesList),
-                        courseGson.toJson(testList));
+                        testData);
                 return "UPDATE SUCCESSFUL";
             }catch(Exception e) {
                 return "UPDATE FAILED";
@@ -171,16 +174,6 @@ public class PaypalService {
 
         }
         return "UPDATE SUCCESSFUL";
-    }
-
-    private void updateBasicPlanData(Order order, List<CourseMapper> testList, CourseMapper courseMapper, CourseMapper testMapper, Calendar c, Calendar testCalendar) {
-        c.add(Calendar.MONTH, 1);
-        courseMapper.setEndTime(c.getTimeInMillis());
-
-        testMapper.setId(order.getCourseId()+"-test-1");
-        testCalendar.add(Calendar.MONTH, 1);
-        testMapper.setEndTime(testCalendar.getTimeInMillis());
-        testList.add(testMapper);
     }
 
     private void updatePlatinumData(Order order, List<CourseMapper> testList, CourseMapper testMapper, Calendar testCalendar) {
@@ -240,7 +233,8 @@ public class PaypalService {
             testCalendar.setTime(new Date());
 
             if("BASIC".equals(order.getPlanType())) {
-                updateBasicPlanData(order, testMapperList, courseMapper, testMapper, c, testCalendar);
+                c.add(Calendar.MONTH, 1);
+                courseMapper.setEndTime(c.getTimeInMillis());
 
             } else if("STANDARD".equals(order.getPlanType())) {
                 c.add(Calendar.MONTH, 2);
@@ -263,10 +257,11 @@ public class PaypalService {
             try {
                 courseMapperList.add(courseMapper);
                 Gson courseGson = new Gson();
+                String testData = CollectionUtils.isEmpty(testMapperList) ? "" : courseGson.toJson(testMapperList);
                 UserCourseDetails userCourseDetails = new UserCourseDetails();
                 userCourseDetails.setUsername(order.getUserName());
                 userCourseDetails.setAllowedCourses(courseGson.toJson(courseMapperList));
-                userCourseDetails.setAllowedMockTests(courseGson.toJson(testMapperList));
+                userCourseDetails.setAllowedMockTests(testData);
                 userCourseDetails.setSubmittedMockTests(null);
                 userCourseRepository.save(userCourseDetails);
                 return "INSERT SUCCESSFUL";
