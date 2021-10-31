@@ -19,7 +19,7 @@ public class ExceptionHandler {
 	public ResponseEntity<String> usernameNotFound(UsernameNotFoundException exception) {
 		return new ResponseEntity<String>("UserName or Password is incorrect",HttpStatus.NOT_FOUND);	
 	}
-	
+	 
 	@org.springframework.web.bind.annotation.ExceptionHandler(PaymentFailureException.class)
 	public ResponseEntity<String> paymentFailure(PaymentFailureException exception) {
 		return new ResponseEntity<String>("Payment got failed, if your money debited please contact to support@nobookslearning.com",HttpStatus.INTERNAL_SERVER_ERROR);
